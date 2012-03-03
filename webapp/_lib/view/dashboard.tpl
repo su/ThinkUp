@@ -63,6 +63,32 @@
           {if $data_template}
             {include file=$data_template}
           {else} {* else if no $data_template *}
+
+              {if $instance->network eq 'foursquare'}
+               {if $checkins_per_hour_last_week|count_characters neq 0}
+                   <div class="section">
+                       <h2>Where You Went This Week</h2>
+                       <center><img src={$checkins_map}></center>
+                   </div>
+               {/if}
+
+               {if $checkins_per_hour_last_week|count_characters neq 0}
+                    {include file="_dashboard.checkinsperhourlastweek.tpl"}
+               {/if}
+
+               {if $checkins_per_hour_all_time|count_characters neq 0}
+                    {include file="_dashboard.checkinsperhouralltime.tpl"}
+               {/if}
+
+               {if $checkins_by_type|count_characters neq 0}
+                    {include file="_dashboard.checkinplacetypesalltime.tpl"}
+               {/if}
+
+               {if $checkins_by_type_last_week|count_characters neq 0}
+                   {include file="_dashboard.checkinplacetypeslastweek.tpl"}
+               {/if}
+             {/if}
+
             {if $hot_posts_data}
                 <div class="section">
                 {include file="_dashboard.responserates.tpl"}
@@ -125,14 +151,29 @@
                 </div>
             {/if}
 
-            {if $most_retweeted_1wk}
-              <div class="clearfix section">
-                <h2>This Week's Most {if $instance->network eq 'google+'}Reshared{else}Retweeted{/if} Posts</h2>
-                {foreach from=$most_retweeted_1wk key=tid item=t name=foo}
-                  {include file="_post.counts_no_author.tpl" post=$t show_favorites_instead_of_retweets=false}
-                {/foreach}
-              </div>
-            {/if}
+            {if $posts_flashback|@count > 0 }
+            <div class="section">
+                <h2>Flashback: On This Day In Years Past</h2>
+                {if $instance->network eq 'foursquare'}
+                    <style type="text/css">
+                    {literal}
+                    .map-image-container { width: 130px; height: 130px; padding-bottom : 30px; }
+                    img.map-image2 {float:left;margin:6px 0 0 0;width:150px;height:150px;}
+                    img.place-icon2 {position: relative;width: 32px;height: 32px;top: -146px;left: 5px;}
+                    {/literal}
+                    </style>
+
+                    {foreach from=$posts_flashback item=post name=foo}
+                        {include file="_post.checkin.tpl"}
+                    {/foreach}
+                {else}
+                    {foreach from=$posts_flashback key=tid item=post name=foo}
+                      {include file="_post.counts_no_author.tpl" post=$post show_favorites_instead_of_retweets=false}
+                    {/foreach}
+                {/if}
+            </div>
+           {/if} 
+
             {if $instance->network eq 'twitter' }
                 <div class="section" style="float : left; clear : none; width : 345px;">
                   {include file="_dashboard.posttypes.tpl"}
